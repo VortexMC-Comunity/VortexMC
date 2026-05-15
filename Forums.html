@@ -617,9 +617,7 @@ footer{
 
   <div class="section-title">
     <h2>Trending Threads</h2>
-    <p>
-      Popular discussions happening right now.
-    </p>
+    <p>Popular discussions happening right now.</p>
   </div>
 
   <div class="forum-table">
@@ -656,83 +654,53 @@ footer{
       <div class="reply-count">11 Replies</div>
     </div>
 
-<div id="authBox" class="create-post">
-
-<h2 style="margin-bottom:20px;">
-Login / Signup
-</h2>
-
-<input
-type="email"
-id="email"
-placeholder="Email Address">
-
-<input
-type="password"
-id="password"
-placeholder="Password">
-
-<div class="hero-buttons">
-
-<button onclick="signup()" class="btn btn-primary">
-Signup
-</button>
-
-<button onclick="login()" class="btn btn-secondary">
-Login
-</button>
-
-</div>
-
-</div>
-
-<div id="postSection" style="display:none;">
-
-<div class="create-post">
-
-<h2 style="margin-bottom:20px;">
-Create Thread
-</h2>
-
-<input
-type="text"
-id="threadTitle"
-placeholder="Thread Title">
-
-<textarea
-id="threadMessage"
-placeholder="Write your message...">
-</textarea>
-
-<div class="hero-buttons">
-
-<button onclick="createPost()" class="btn btn-primary">
-Post Thread
-</button>
-
-<button onclick="logout()" class="btn btn-secondary">
-Logout
-</button>
-
-</div>
-
-</div>
-
-<div id="postsContainer"></div>
-
-</div>
-
   </div>
 
 </section>
 
+<!-- 🔐 AUTH SECTION (OUTSIDE THREADS) -->
+<div id="authBox" class="create-post">
+
+  <h2 style="margin-bottom:20px;">Login / Signup</h2>
+
+  <input type="email" id="email" placeholder="Email Address">
+  <input type="password" id="password" placeholder="Password">
+
+  <div class="hero-buttons">
+    <button onclick="signup()" class="btn btn-primary">Signup</button>
+    <button onclick="login()" class="btn btn-secondary">Login</button>
+  </div>
+
+</div>
+
+<!-- 🧵 POST SECTION -->
+<div id="postSection" style="display:none;">
+
+  <div class="create-post">
+
+    <h2 style="margin-bottom:20px;">Create Thread</h2>
+
+    <input type="text" id="threadTitle" placeholder="Thread Title">
+
+    <textarea id="threadMessage" placeholder="Write your message..."></textarea>
+
+    <div class="hero-buttons">
+      <button onclick="createPost()" class="btn btn-primary">Post Thread</button>
+      <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    </div>
+
+  </div>
+
+  <div id="postsContainer"></div>
+
+</div>
+
+<!-- 🌐 ONLINE SECTION -->
 <section class="section" id="online">
 
   <div class="online-box">
     <h3>1,284 Players Online</h3>
-    <p>
-      Active community members currently browsing the forums.
-    </p>
+    <p>Active community members currently browsing the forums.</p>
 
     <div class="members">
       <div class="member">👑 Steve</div>
@@ -744,6 +712,118 @@ Logout
   </div>
 
 </section>
+
+<!-- 🔥 FIREBASE SCRIPT (MUST BE HERE) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* UI ELEMENTS */
+const authBox = document.getElementById("authBox");
+const postSection = document.getElementById("postSection");
+const postsContainer = document.getElementById("postsContainer");
+
+/* SIGNUP */
+window.signup = async function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  await createUserWithEmailAndPassword(auth, email, password);
+};
+
+/* LOGIN */
+window.login = async function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  await signInWithEmailAndPassword(auth, email, password);
+};
+
+/* LOGOUT */
+window.logout = async function () {
+  await signOut(auth);
+};
+
+/* CREATE POST */
+window.createPost = async function () {
+  const title = document.getElementById("threadTitle").value;
+  const message = document.getElementById("threadMessage").value;
+
+  await addDoc(collection(db, "posts"), {
+    title,
+    message,
+    time: serverTimestamp(),
+    user: auth.currentUser.email
+  });
+
+  document.getElementById("threadTitle").value = "";
+  document.getElementById("threadMessage").value = "";
+};
+
+/* REALTIME POSTS */
+const q = query(collection(db, "posts"), orderBy("time", "desc"));
+
+onSnapshot(q, (snapshot) => {
+  postsContainer.innerHTML = "";
+
+  snapshot.forEach((doc) => {
+    const post = doc.data();
+
+    postsContainer.innerHTML += `
+      <div class="forum-post">
+        <div class="post-top">
+          <h3>${post.title}</h3>
+          <span>${post.user}</span>
+        </div>
+        <div class="post-text">
+          ${post.message}
+        </div>
+      </div>
+    `;
+  });
+});
+
+/* AUTH STATE */
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    authBox.style.display = "none";
+    postSection.style.display = "block";
+  } else {
+    authBox.style.display = "block";
+    postSection.style.display = "none";
+  }
+});
+</script>
 
 <footer>
   © 2026 VortexMC Forums — Minecraft Community Platform
