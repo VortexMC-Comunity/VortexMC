@@ -658,6 +658,72 @@ footer{
 
     <div class="create-post">
 
+      <div id="authBox" class="support-box" style="margin-bottom:40px;">
+
+<h2 style="margin-bottom:20px;">
+Login / Signup
+</h2>
+
+<input
+type="email"
+id="email"
+placeholder="Email Address">
+
+<input
+type="password"
+id="password"
+placeholder="Password">
+
+<div class="hero-buttons">
+
+<button onclick="signup()" class="btn btn-primary">
+Signup
+</button>
+
+<button onclick="login()" class="btn btn-secondary">
+Login
+</button>
+
+</div>
+
+</div>
+
+<div id="postSection" style="display:none;">
+
+<div class="support-box" style="margin-bottom:40px;">
+
+<h2 style="margin-bottom:20px;">
+Create Thread
+</h2>
+
+<input
+type="text"
+id="threadTitle"
+placeholder="Thread Title">
+
+<textarea
+id="threadMessage"
+placeholder="Write your message...">
+</textarea>
+
+<div class="hero-buttons">
+
+<button onclick="createPost()" class="btn btn-primary">
+Post Thread
+</button>
+
+<button onclick="logout()" class="btn btn-secondary">
+Logout
+</button>
+
+</div>
+
+</div>
+
+<div id="postsContainer"></div>
+
+</div>
+
   <h2>Create Thread</h2>
 
   <input type="text" id="threadTitle" placeholder="Thread title">
