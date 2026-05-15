@@ -413,6 +413,176 @@ footer{
 </style>
 </head>
 
+  <script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+import {
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+signOut,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.firebasestorage.app",
+  messagingSenderId: "YOUR_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.signup = async function(){
+
+  const email =
+  document.getElementById("email").value;
+
+  const password =
+  document.getElementById("password").value;
+
+  try{
+
+    await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    alert("Account created!");
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
+
+window.login = async function(){
+
+  const email =
+  document.getElementById("email").value;
+
+  const password =
+  document.getElementById("password").value;
+
+  try{
+
+    await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    alert("Logged in!");
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
+
+window.logout = async function(){
+
+  await signOut(auth);
+
+  alert("Logged out");
+
+}
+
+window.createPost = async function(){
+
+  const title =
+  document.getElementById("threadTitle").value;
+
+  const message =
+  document.getElementById("threadMessage").value;
+
+  if(!title || !message) return;
+
+  await addDoc(
+    collection(db,"posts"),
+    {
+      title:title,
+      message:message,
+      user:auth.currentUser?.email || "Guest"
+    }
+  );
+
+  loadPosts();
+
+}
+
+async function loadPosts(){
+
+  const container =
+  document.getElementById("postsContainer");
+
+  container.innerHTML = "";
+
+  const querySnapshot =
+  await getDocs(collection(db,"posts"));
+
+  querySnapshot.forEach((doc)=>{
+
+    const data = doc.data();
+
+    container.innerHTML += `
+
+    <div class="post">
+
+      <h3>${data.title}</h3>
+
+      <p>${data.message}</p>
+
+      <small>
+      Posted by ${data.user}
+      </small>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+onAuthStateChanged(auth,(user)=>{
+
+  if(user){
+
+    console.log("Logged in:",user.email);
+
+  }else{
+
+    console.log("Logged out");
+
+  }
+
+});
+
+loadPosts();
+
+</script>
+
 <body>
 
 <nav>
