@@ -549,20 +549,17 @@ footer{
     </p>
   </div>
 
-  <div class="support-box">
+ <div class="support-box">
 
-    <input type="text" placeholder="Minecraft Username">
+  <input type="text" id="mcuser" placeholder="Minecraft Username">
 
-    <input type="email" placeholder="Email Address">
+  <textarea id="ticketmessage" placeholder="Describe your issue..."></textarea>
 
-    <textarea placeholder="Describe your issue..."></textarea>
+  <button onclick="submitTicket()" class="btn btn-primary">
+    Submit Ticket
+  </button>
 
-    <a href="#" class="btn btn-primary">
-      Submit Ticket
-    </a>
-
-  </div>
-
+</div>
 </section>
 
 <script type="module">
@@ -575,8 +572,14 @@ import {
   signInWithPopup,
   signOut,
   onAuthStateChanged
-}
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBHjpiyUNDQjGKrZci74qaWiDHwZR02Hcw",
@@ -591,7 +594,56 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
+const db = getFirestore(app);
+
 const provider = new GoogleAuthProvider();
+
+window.submitTicket = async function(){
+
+  if(!auth.currentUser){
+
+    alert("You must login first.");
+    return;
+
+  }
+
+  const username =
+  document.getElementById("mcuser").value;
+
+  const message =
+  document.getElementById("ticketmessage").value;
+
+  if(!username || !message){
+
+    alert("Fill all fields");
+    return;
+
+  }
+
+  try{
+
+    await addDoc(collection(db,"tickets"),{
+
+      username,
+      message,
+      email: auth.currentUser.email,
+      userId: auth.currentUser.uid,
+      created: serverTimestamp()
+
+    });
+
+    alert("Ticket submitted!");
+
+    document.getElementById("mcuser").value = "";
+    document.getElementById("ticketmessage").value = "";
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
 
 window.login = async function(){
 
