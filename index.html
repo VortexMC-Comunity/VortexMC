@@ -413,176 +413,6 @@ footer{
 </style>
 </head>
 
-  <script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-
-import {
-getAuth,
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,
-signOut,
-onAuthStateChanged
-}
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs
-}
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-window.signup = async function(){
-
-  const email =
-  document.getElementById("email").value;
-
-  const password =
-  document.getElementById("password").value;
-
-  try{
-
-    await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-    alert("Account created!");
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-window.login = async function(){
-
-  const email =
-  document.getElementById("email").value;
-
-  const password =
-  document.getElementById("password").value;
-
-  try{
-
-    await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-    alert("Logged in!");
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-window.logout = async function(){
-
-  await signOut(auth);
-
-  alert("Logged out");
-
-}
-
-window.createPost = async function(){
-
-  const title =
-  document.getElementById("threadTitle").value;
-
-  const message =
-  document.getElementById("threadMessage").value;
-
-  if(!title || !message) return;
-
-  await addDoc(
-    collection(db,"posts"),
-    {
-      title:title,
-      message:message,
-      user:auth.currentUser?.email || "Guest"
-    }
-  );
-
-  loadPosts();
-
-}
-
-async function loadPosts(){
-
-  const container =
-  document.getElementById("postsContainer");
-
-  container.innerHTML = "";
-
-  const querySnapshot =
-  await getDocs(collection(db,"posts"));
-
-  querySnapshot.forEach((doc)=>{
-
-    const data = doc.data();
-
-    container.innerHTML += `
-
-    <div class="post">
-
-      <h3>${data.title}</h3>
-
-      <p>${data.message}</p>
-
-      <small>
-      Posted by ${data.user}
-      </small>
-
-    </div>
-
-    `;
-
-  });
-
-}
-
-onAuthStateChanged(auth,(user)=>{
-
-  if(user){
-
-    console.log("Logged in:",user.email);
-
-  }else{
-
-    console.log("Logged out");
-
-  }
-
-});
-
-loadPosts();
-
-</script>
-
 <body>
 
 <nav>
@@ -621,6 +451,10 @@ loadPosts();
         <a href="#" class="btn btn-secondary">Open Ticket</a>
       </div>
     </div>
+
+    <br>
+
+<div id="user-status"></div>
 
     <div class="panel">
 
@@ -731,6 +565,107 @@ loadPosts();
 
 </section>
 
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBHjpiyUNDQjGKrZci74qaWiDHwZR02Hcw",
+  authDomain: "vortex-login-ea644.firebaseapp.com",
+  projectId: "vortex-login-ea644",
+  storageBucket: "vortex-login-ea644.firebasestorage.app",
+  messagingSenderId: "885557677840",
+  appId: "1:885557677840:web:4559988b3f1cb90eef9f95"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const provider = new GoogleAuthProvider();
+
+window.login = async function(){
+
+  try{
+
+    await signInWithPopup(auth,provider);
+
+    window.location.href = "Forums.html";
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
+
+window.logout = async function(){
+
+  await signOut(auth);
+
+}
+
+onAuthStateChanged(auth,(user)=>{
+
+  const status =
+  document.getElementById("user-status");
+
+  if(user){
+
+    status.innerHTML = `
+
+    <p>
+    Logged in as ${user.displayName}
+    </p>
+
+    <br>
+
+    <a href="Forums.html"
+    class="btn btn-primary">
+
+    Open Forums
+
+    </a>
+
+    <button
+    onclick="logout()"
+    class="btn btn-secondary">
+
+    Logout
+
+    </button>
+
+    `;
+
+  }else{
+
+    status.innerHTML = `
+
+    <button
+    onclick="login()"
+    class="btn btn-primary">
+
+    Login With Google
+
+    </button>
+
+    `;
+
+  }
+
+});
+
+</script>
 <section id="staff">
 
   <div class="section-title">

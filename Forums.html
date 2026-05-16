@@ -659,19 +659,6 @@ footer{
 </section>
 
 <!-- 🔐 AUTH SECTION (OUTSIDE THREADS) -->
-<div id="authBox" class="create-post">
-
-  <h2 style="margin-bottom:20px;">Login / Signup</h2>
-
-  <input type="email" id="email" placeholder="Email Address">
-  <input type="password" id="password" placeholder="Password">
-
-  <div class="hero-buttons">
-    <button onclick="signup()" class="btn btn-primary">Signup</button>
-    <button onclick="login()" class="btn btn-secondary">Login</button>
-  </div>
-
-</div>
 
 <!-- 🧵 POST SECTION -->
 <div id="postSection" style="display:none;">
@@ -815,13 +802,17 @@ onSnapshot(q, (snapshot) => {
 
 /* AUTH STATE */
 onAuthStateChanged(auth, (user) => {
+
   if (user) {
-    authBox.style.display = "none";
+
     postSection.style.display = "block";
+
   } else {
-    authBox.style.display = "block";
-    postSection.style.display = "none";
+
+    window.location.href = "index.html";
+
   }
+
 });
 </script>
 
