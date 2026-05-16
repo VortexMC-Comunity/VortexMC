@@ -723,12 +723,12 @@ import {
 
 /* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBHjpiyUNDQjGKrZci74qaWiDHwZR02Hcw",
+  authDomain: "vortex-login-ea644.firebaseapp.com",
+  projectId: "vortex-login-ea644",
+  storageBucket: "vortex-login-ea644.firebasestorage.app",
+  messagingSenderId: "885557677840",
+  appId: "1:885557677840:web:4559988b3f1cb90eef9f95"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -809,7 +809,15 @@ onAuthStateChanged(auth, (user) => {
 
   } else {
 
-    window.location.href = "index.html";
+    setTimeout(() => {
+
+      if (!auth.currentUser) {
+
+        window.location.href = "index.html";
+
+      }
+
+    }, 2000);
 
   }
 
